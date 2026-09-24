@@ -30,8 +30,9 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           python-version: "3.14"
+          activate-environment: true
       - name: Install
-        run: uv pip install --system pytest-homeassistant-custom-component "pymodbus[serial]==3.13.1" foxess-modbus ruff mypy
+        run: uv pip install pytest-homeassistant-custom-component "pymodbus[serial]==3.13.1" foxess-modbus ruff mypy
       - name: Ruff
         run: ruff check . && ruff format --check .
       - name: Mypy
