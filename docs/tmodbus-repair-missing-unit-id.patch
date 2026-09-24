@@ -1,0 +1,169 @@
+diff --git a/src/tmodbus/transport/async_tcp.py b/src/tmodbus/transport/async_tcp.py
+index 570f281..640c044 100644
+--- a/src/tmodbus/transport/async_tcp.py
++++ b/src/tmodbus/transport/async_tcp.py
+@@ -55,6 +55,7 @@ class AsyncTcpTransport(AsyncBaseTransport):
+         timeout: float = 10.0,
+         connect_timeout: float = 10.0,
+         on_connection_lost: Callable[[Exception | None], None] | None = None,
++        repair_missing_unit_id: bool = False,
+         **connection_kwargs: Any,
+     ) -> None:
+         """Initialize async TCP transport layer.
+@@ -66,6 +67,10 @@ class AsyncTcpTransport(AsyncBaseTransport):
+             connect_timeout: Timeout for establishing connection, default 10.0s
+             on_connection_lost: Optional callback invoked the moment the connection is lost.
+                                 Receives the causing exception, or None on a clean close.
++            repair_missing_unit_id: Accept a response whose MBAP header lacks the unit id.
++                                Some serial devices behind a gateway drop the RTU address byte, so
++                                the gateway forwards the function code in the unit id position. See
++                                ``ModbusTcpProtocol`` for when a frame counts as such.
+             connection_kwargs: Additional connection parameters passed to `asyncio.create_connection`
+                                (e.g., SSL context)
+ 
+@@ -89,6 +94,7 @@ class AsyncTcpTransport(AsyncBaseTransport):
+         self.timeout = timeout
+         self.connect_timeout = connect_timeout
+         self.on_connection_lost = on_connection_lost
++        self.repair_missing_unit_id = repair_missing_unit_id
+         self.connection_kwargs = connection_kwargs
+ 
+     async def open(self) -> None:
+@@ -101,7 +107,11 @@ class AsyncTcpTransport(AsyncBaseTransport):
+         try:
+             self._transport, self._protocol = await asyncio.wait_for(
+                 loop.create_connection(
+-                    lambda: ModbusTcpProtocol(on_connection_lost=self._on_connection_lost, timeout=self.timeout),
++                    lambda: ModbusTcpProtocol(
++                        on_connection_lost=self._on_connection_lost,
++                        timeout=self.timeout,
++                        repair_missing_unit_id=self.repair_missing_unit_id,
++                    ),
+                     host=self.host,
+                     port=self.port,
+                     **self.connection_kwargs,
+@@ -194,12 +204,20 @@ class ModbusTcpProtocol(asyncio.Protocol):
+         *,
+         on_connection_lost: Callable[[Exception | None], None],
+         timeout: float = 10.0,
++        repair_missing_unit_id: bool = False,
+     ) -> None:
+-        """Initialize Modbus TCP Protocol."""
++        """Initialize Modbus TCP Protocol.
++
++        With ``repair_missing_unit_id``, a response whose unit id does not match the request but
++        equals the request's function code (or its exception form) is read as a frame that lost
++        its unit id: the byte is put back in front of the PDU. A correct frame never matches,
++        because its unit id byte is the one requested.
++        """
+         super().__init__()
+ 
+         self.on_connection_lost = on_connection_lost
+         self.timeout = timeout
++        self.repair_missing_unit_id = repair_missing_unit_id
+ 
+         self._buffer = bytearray()
+         self._next_transaction_id = 1
+@@ -286,6 +304,20 @@ class ModbusTcpProtocol(asyncio.Protocol):
+         # We can also skip checking the protocol ID: the parser already discarded any message with a
+         # different protocol ID.
+ 
++        if (
++            response.unit_id != unit_id
++            and self.repair_missing_unit_id
++            and response.unit_id & FUNCTION_CODE_MASK == request_pdu_bytes[0]
++        ):
++            logger.debug("Repairing a response without unit id: %s", response.bytes.hex(" ").upper())
++            response = _ModbusMessage(
++                transaction_id=response.transaction_id,
++                protocol_id=response.protocol_id,
++                length=response.length + 1,
++                unit_id=unit_id,
++                pdu_bytes=bytes([response.unit_id]) + response.pdu_bytes,
++            )
++
+         if response.unit_id != unit_id:
+             msg = f"Unit ID mismatch: expected {unit_id:#04x}, received {response.unit_id:#04x}"
+             raise HeaderMismatchError(msg, response_bytes=response.bytes)
+diff --git a/tests/transport/test_async_tcp.py b/tests/transport/test_async_tcp.py
+index bc6883e..d7fff01 100644
+--- a/tests/transport/test_async_tcp.py
++++ b/tests/transport/test_async_tcp.py
+@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
+ 
+ import pytest
+ from tmodbus.exceptions import InvalidRequestError, InvalidResponseError, ModbusConnectionError, ModbusResponseError
+-from tmodbus.pdu.base import BaseClientPDU
++from tmodbus.pdu.base import RT, BaseClientPDU
+ from tmodbus.pdu.serial_line import DiagnosticsForceListenOnlyModePDU
+ from tmodbus.transport.async_tcp import AsyncTcpTransport, ModbusTcpProtocol, _ModbusMessage
+ 
+@@ -817,3 +817,68 @@ async def test_transport_send_and_receive_delegates_to_protocol(monkeypatch: pyt
+ 
+     # Cleanup
+     await t.close()
++
++
++async def _exchange(protocol: ModbusTcpProtocol, unit_id: int, pdu: BaseClientPDU[RT], response: bytes) -> RT:
++    """Send ``pdu`` on ``protocol`` and feed ``response`` to it."""
++    mock_transport = MagicMock(spec=asyncio.WriteTransport)
++    mock_transport.is_closing.return_value = False
++    protocol.connection_made(mock_transport)
++    task = asyncio.create_task(protocol.send_and_receive(unit_id, pdu))
++    await asyncio.sleep(0.01)
++    protocol.data_received(response)
++    return await task
++
++
++class _ReadHoldingPDU(BaseClientPDU[bytes]):
++    """Read holding registers 30016 x3, as sent to a FoxESS H3."""
++
++    function_code = 0x03
++
++    def encode_request(self) -> bytes:
++        return b"\x03\x75\x40\x00\x03"
++
++    def decode_response(self, data: bytes) -> bytes:
++        return data
++
++
++# Captured from a FoxESS H3 (Master 2.23 / Manager 1.95) behind a USR RS485 gateway:
++# the RTU slave address 0xF7 is missing, so the gateway sends the function code as unit id.
++_SHORT_FRAME = bytes.fromhex("0001 0000 0008 03 06 00df 0067 0195".replace(" ", ""))
++_GOOD_FRAME = bytes.fromhex("0001 0000 0009 f7 03 06 00df 0067 0195".replace(" ", ""))
++_SHORT_EXCEPTION = bytes.fromhex("0001 0000 0002 83 02".replace(" ", ""))
++
++
++async def test_repair_missing_unit_id_off_by_default() -> None:
++    protocol = ModbusTcpProtocol(on_connection_lost=lambda _: None)
++    with pytest.raises(InvalidResponseError, match="Unit ID mismatch"):
++        await _exchange(protocol, 0xF7, _ReadHoldingPDU(), _SHORT_FRAME)
++
++
++async def test_repair_missing_unit_id() -> None:
++    protocol = ModbusTcpProtocol(on_connection_lost=lambda _: None, repair_missing_unit_id=True)
++    assert await _exchange(protocol, 0xF7, _ReadHoldingPDU(), _SHORT_FRAME) == bytes.fromhex("030600df00670195")
++
++
++async def test_repair_missing_unit_id_leaves_good_frames() -> None:
++    protocol = ModbusTcpProtocol(on_connection_lost=lambda _: None, repair_missing_unit_id=True)
++    assert await _exchange(protocol, 0xF7, _ReadHoldingPDU(), _GOOD_FRAME) == bytes.fromhex("030600df00670195")
++
++
++async def test_repair_missing_unit_id_exception_response() -> None:
++    protocol = ModbusTcpProtocol(on_connection_lost=lambda _: None, repair_missing_unit_id=True)
++    with pytest.raises(ModbusResponseError):
++        await _exchange(protocol, 0xF7, _ReadHoldingPDU(), _SHORT_EXCEPTION)
++
++
++async def test_repair_missing_unit_id_ignores_other_units() -> None:
++    """A unit id that is not the function code is a real mismatch."""
++    protocol = ModbusTcpProtocol(on_connection_lost=lambda _: None, repair_missing_unit_id=True)
++    other_unit = bytes.fromhex("0001 0000 0009 02 03 06 00df 0067 0195".replace(" ", ""))
++    with pytest.raises(InvalidResponseError, match="Unit ID mismatch"):
++        await _exchange(protocol, 0xF7, _ReadHoldingPDU(), other_unit)
++
++
++async def test_transport_passes_repair_to_protocol() -> None:
++    assert AsyncTcpTransport("host").repair_missing_unit_id is False
++    assert AsyncTcpTransport("host", repair_missing_unit_id=True).repair_missing_unit_id is True

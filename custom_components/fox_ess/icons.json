@@ -1,0 +1,61 @@
+{
+  "entity": {
+    "sensor": {
+      "pv_power": {
+        "default": "mdi:solar-power"
+      },
+      "pv1_power": {
+        "default": "mdi:solar-power"
+      },
+      "pv2_power": {
+        "default": "mdi:solar-power"
+      },
+      "grid_power": {
+        "default": "mdi:transmission-tower"
+      },
+      "feed_in_power": {
+        "default": "mdi:transmission-tower-import"
+      },
+      "grid_import_power": {
+        "default": "mdi:transmission-tower-export"
+      },
+      "load_power": {
+        "default": "mdi:home-lightning-bolt"
+      },
+      "battery_charge_power": {
+        "default": "mdi:battery-arrow-up"
+      },
+      "battery_discharge_power": {
+        "default": "mdi:battery-arrow-down"
+      },
+      "state_code": {
+        "default": "mdi:state-machine"
+      },
+      "battery_soh": {
+        "default": "mdi:battery-heart-variant"
+      }
+    },
+    "select": {
+      "work_mode": {
+        "default": "mdi:cog-transfer"
+      }
+    },
+    "number": {
+      "max_charge_current": {
+        "default": "mdi:battery-arrow-up"
+      },
+      "max_discharge_current": {
+        "default": "mdi:battery-arrow-down"
+      },
+      "min_soc": {
+        "default": "mdi:battery-low"
+      },
+      "max_soc": {
+        "default": "mdi:battery-high"
+      },
+      "min_soc_on_grid": {
+        "default": "mdi:battery-low"
+      }
+    }
+  }
+}

@@ -1,0 +1,278 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Falownik FoxESS",
+        "description": "Połącz falownik FoxESS przez bramkę Modbus TCP.",
+        "data": {
+          "host": "Host",
+          "port": "Port",
+          "unit_id": "Adres Modbus (unit ID)"
+        },
+        "data_description": {
+          "host": "Adres bramki Modbus TCP podłączonej do portu RS485 falownika.",
+          "port": "Port Modbus TCP bramki.",
+          "unit_id": "Adres Modbus falownika. Fabrycznie 247."
+        }
+      },
+      "reconfigure": {
+        "title": "Falownik FoxESS",
+        "data": {
+          "host": "Host",
+          "port": "Port",
+          "unit_id": "Adres Modbus (unit ID)"
+        },
+        "data_description": {
+          "host": "Adres bramki Modbus TCP podłączonej do portu RS485 falownika.",
+          "port": "Port Modbus TCP bramki.",
+          "unit_id": "Adres Modbus falownika. Fabrycznie 247."
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Nie udało się połączyć: {error}",
+      "unsupported_model": "Model {model} nie jest jeszcze obsługiwany."
+    },
+    "abort": {
+      "already_configured": "Ten falownik jest już skonfigurowany.",
+      "reconfigure_successful": "Zmiana konfiguracji zakończona."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "pv_power": {
+        "name": "Moc PV"
+      },
+      "pv1_power": {
+        "name": "Moc PV1"
+      },
+      "pv2_power": {
+        "name": "Moc PV2"
+      },
+      "pv1_voltage": {
+        "name": "Napięcie PV1"
+      },
+      "pv2_voltage": {
+        "name": "Napięcie PV2"
+      },
+      "pv1_current": {
+        "name": "Prąd PV1"
+      },
+      "pv2_current": {
+        "name": "Prąd PV2"
+      },
+      "grid_power": {
+        "name": "Moc sieci"
+      },
+      "feed_in_power": {
+        "name": "Moc oddawana do sieci"
+      },
+      "grid_import_power": {
+        "name": "Moc pobierana z sieci"
+      },
+      "load_power": {
+        "name": "Moc zużycia"
+      },
+      "inverter_power": {
+        "name": "Moc falownika"
+      },
+      "eps_power": {
+        "name": "Moc EPS"
+      },
+      "grid_power_r": {
+        "name": "Moc sieci R"
+      },
+      "grid_power_s": {
+        "name": "Moc sieci S"
+      },
+      "grid_power_t": {
+        "name": "Moc sieci T"
+      },
+      "load_power_r": {
+        "name": "Moc zużycia R"
+      },
+      "load_power_s": {
+        "name": "Moc zużycia S"
+      },
+      "load_power_t": {
+        "name": "Moc zużycia T"
+      },
+      "inverter_power_r": {
+        "name": "Moc falownika R"
+      },
+      "inverter_power_s": {
+        "name": "Moc falownika S"
+      },
+      "inverter_power_t": {
+        "name": "Moc falownika T"
+      },
+      "grid_voltage_r": {
+        "name": "Napięcie sieci R"
+      },
+      "grid_voltage_s": {
+        "name": "Napięcie sieci S"
+      },
+      "grid_voltage_t": {
+        "name": "Napięcie sieci T"
+      },
+      "inverter_current_r": {
+        "name": "Prąd falownika R"
+      },
+      "inverter_current_s": {
+        "name": "Prąd falownika S"
+      },
+      "inverter_current_t": {
+        "name": "Prąd falownika T"
+      },
+      "grid_frequency": {
+        "name": "Częstotliwość sieci"
+      },
+      "battery_soc": {
+        "name": "Stan naładowania baterii"
+      },
+      "battery_power": {
+        "name": "Moc baterii"
+      },
+      "battery_charge_power": {
+        "name": "Moc ładowania baterii"
+      },
+      "battery_discharge_power": {
+        "name": "Moc rozładowania baterii"
+      },
+      "battery_voltage": {
+        "name": "Napięcie baterii"
+      },
+      "battery_current": {
+        "name": "Prąd baterii"
+      },
+      "battery_temperature": {
+        "name": "Temperatura baterii"
+      },
+      "inverter_temperature": {
+        "name": "Temperatura falownika"
+      },
+      "ambient_temperature": {
+        "name": "Temperatura otoczenia"
+      },
+      "state_code": {
+        "name": "Kod stanu"
+      },
+      "battery_soh": {
+        "name": "Kondycja baterii"
+      },
+      "battery_energy_remaining": {
+        "name": "Energia pozostała w baterii"
+      },
+      "cell_temperature_high": {
+        "name": "Najwyższa temperatura ogniwa"
+      },
+      "cell_temperature_low": {
+        "name": "Najniższa temperatura ogniwa"
+      },
+      "cell_voltage_high": {
+        "name": "Najwyższe napięcie ogniwa"
+      },
+      "cell_voltage_low": {
+        "name": "Najniższe napięcie ogniwa"
+      },
+      "solar_energy_total": {
+        "name": "Energia z PV"
+      },
+      "solar_energy_today": {
+        "name": "Energia z PV dziś"
+      },
+      "battery_charge_total": {
+        "name": "Energia ładowania baterii"
+      },
+      "battery_charge_today": {
+        "name": "Energia ładowania baterii dziś"
+      },
+      "battery_discharge_total": {
+        "name": "Energia rozładowania baterii"
+      },
+      "battery_discharge_today": {
+        "name": "Energia rozładowania baterii dziś"
+      },
+      "feed_in_total": {
+        "name": "Energia oddana do sieci"
+      },
+      "feed_in_today": {
+        "name": "Energia oddana do sieci dziś"
+      },
+      "grid_import_total": {
+        "name": "Energia pobrana z sieci"
+      },
+      "grid_import_today": {
+        "name": "Energia pobrana z sieci dziś"
+      },
+      "load_energy_total": {
+        "name": "Energia zużyta"
+      },
+      "load_energy_today": {
+        "name": "Energia zużyta dziś"
+      },
+      "yield_total": {
+        "name": "Uzysk"
+      },
+      "yield_today": {
+        "name": "Uzysk dziś"
+      },
+      "input_energy_total": {
+        "name": "Energia wejściowa"
+      },
+      "input_energy_today": {
+        "name": "Energia wejściowa dziś"
+      }
+    },
+    "binary_sensor": {
+      "fault": {
+        "name": "Usterka"
+      }
+    },
+    "number": {
+      "max_charge_current": {
+        "name": "Maks. prąd ładowania"
+      },
+      "max_discharge_current": {
+        "name": "Maks. prąd rozładowania"
+      },
+      "min_soc": {
+        "name": "Min. naładowanie poza siecią"
+      },
+      "max_soc": {
+        "name": "Maks. naładowanie"
+      },
+      "min_soc_on_grid": {
+        "name": "Min. naładowanie przy sieci"
+      }
+    },
+    "select": {
+      "work_mode": {
+        "name": "Tryb pracy",
+        "state": {
+          "self_use": "Autokonsumpcja",
+          "feed_in_first": "Priorytet oddawania",
+          "back_up": "Zapas (back-up)",
+          "peak_shaving": "Ścinanie szczytów"
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "modbus_error": {
+      "message": "Błąd komunikacji Modbus: {error}"
+    },
+    "no_component_answered": {
+      "message": "Falownik nie odpowiedział na żaden odczyt."
+    },
+    "unsupported_model": {
+      "message": "Model {model} nie jest obsługiwany."
+    },
+    "invalid_value": {
+      "message": "Wartość {value} jest niedozwolona: {error}"
+    },
+    "write_failed": {
+      "message": "Falownik odrzucił zapis: {error}"
+    }
+  }
+}

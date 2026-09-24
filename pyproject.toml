@@ -1,0 +1,42 @@
+[project]
+name = "hassio-integration-fox-ess"
+version = "0.1.0"
+description = "FoxESS inverters over Modbus for Home Assistant (custom integration)."
+requires-python = ">=3.14"
+
+[dependency-groups]
+dev = [
+    "foxess-modbus",
+    "pymodbus[serial]==3.13.1",
+    "pytest-homeassistant-custom-component",
+    "mypy>=1.11",
+    "ruff>=0.6",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py314"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "D", "RUF"]
+ignore = ["D107", "D401", "D105", "E501"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "pep257"
+
+[tool.ruff.lint.isort]
+force-sort-within-sections = true
+known-first-party = ["custom_components", "homeassistant"]
+combine-as-imports = true
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["D100", "D103", "D104"]
+
+[tool.mypy]
+python_version = "3.14"
+strict = true
+files = ["custom_components"]

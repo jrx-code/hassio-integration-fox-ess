@@ -1,0 +1,278 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "FoxESS inverter",
+        "description": "Connect a FoxESS inverter through a Modbus TCP gateway.",
+        "data": {
+          "host": "Host",
+          "port": "Port",
+          "unit_id": "Unit ID"
+        },
+        "data_description": {
+          "host": "Address of the Modbus TCP gateway on the inverter's RS485 port.",
+          "port": "Modbus TCP port of the gateway.",
+          "unit_id": "The inverter's Modbus address. FoxESS ships with 247."
+        }
+      },
+      "reconfigure": {
+        "title": "FoxESS inverter",
+        "data": {
+          "host": "Host",
+          "port": "Port",
+          "unit_id": "Unit ID"
+        },
+        "data_description": {
+          "host": "Address of the Modbus TCP gateway on the inverter's RS485 port.",
+          "port": "Modbus TCP port of the gateway.",
+          "unit_id": "The inverter's Modbus address. FoxESS ships with 247."
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect: {error}",
+      "unsupported_model": "Model {model} is not supported yet."
+    },
+    "abort": {
+      "already_configured": "This inverter is already configured.",
+      "reconfigure_successful": "Reconfiguration was successful."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "pv_power": {
+        "name": "PV power"
+      },
+      "pv1_power": {
+        "name": "PV1 power"
+      },
+      "pv2_power": {
+        "name": "PV2 power"
+      },
+      "pv1_voltage": {
+        "name": "PV1 voltage"
+      },
+      "pv2_voltage": {
+        "name": "PV2 voltage"
+      },
+      "pv1_current": {
+        "name": "PV1 current"
+      },
+      "pv2_current": {
+        "name": "PV2 current"
+      },
+      "grid_power": {
+        "name": "Grid power"
+      },
+      "feed_in_power": {
+        "name": "Feed-in power"
+      },
+      "grid_import_power": {
+        "name": "Grid import power"
+      },
+      "load_power": {
+        "name": "Load power"
+      },
+      "inverter_power": {
+        "name": "Inverter power"
+      },
+      "eps_power": {
+        "name": "EPS power"
+      },
+      "grid_power_r": {
+        "name": "Grid power R"
+      },
+      "grid_power_s": {
+        "name": "Grid power S"
+      },
+      "grid_power_t": {
+        "name": "Grid power T"
+      },
+      "load_power_r": {
+        "name": "Load power R"
+      },
+      "load_power_s": {
+        "name": "Load power S"
+      },
+      "load_power_t": {
+        "name": "Load power T"
+      },
+      "inverter_power_r": {
+        "name": "Inverter power R"
+      },
+      "inverter_power_s": {
+        "name": "Inverter power S"
+      },
+      "inverter_power_t": {
+        "name": "Inverter power T"
+      },
+      "grid_voltage_r": {
+        "name": "Grid voltage R"
+      },
+      "grid_voltage_s": {
+        "name": "Grid voltage S"
+      },
+      "grid_voltage_t": {
+        "name": "Grid voltage T"
+      },
+      "inverter_current_r": {
+        "name": "Inverter current R"
+      },
+      "inverter_current_s": {
+        "name": "Inverter current S"
+      },
+      "inverter_current_t": {
+        "name": "Inverter current T"
+      },
+      "grid_frequency": {
+        "name": "Grid frequency"
+      },
+      "battery_soc": {
+        "name": "Battery state of charge"
+      },
+      "battery_power": {
+        "name": "Battery power"
+      },
+      "battery_charge_power": {
+        "name": "Battery charge power"
+      },
+      "battery_discharge_power": {
+        "name": "Battery discharge power"
+      },
+      "battery_voltage": {
+        "name": "Battery voltage"
+      },
+      "battery_current": {
+        "name": "Battery current"
+      },
+      "battery_temperature": {
+        "name": "Battery temperature"
+      },
+      "inverter_temperature": {
+        "name": "Inverter temperature"
+      },
+      "ambient_temperature": {
+        "name": "Ambient temperature"
+      },
+      "state_code": {
+        "name": "State code"
+      },
+      "battery_soh": {
+        "name": "Battery state of health"
+      },
+      "battery_energy_remaining": {
+        "name": "Battery energy remaining"
+      },
+      "cell_temperature_high": {
+        "name": "Highest cell temperature"
+      },
+      "cell_temperature_low": {
+        "name": "Lowest cell temperature"
+      },
+      "cell_voltage_high": {
+        "name": "Highest cell voltage"
+      },
+      "cell_voltage_low": {
+        "name": "Lowest cell voltage"
+      },
+      "solar_energy_total": {
+        "name": "Solar energy"
+      },
+      "solar_energy_today": {
+        "name": "Solar energy today"
+      },
+      "battery_charge_total": {
+        "name": "Battery charge energy"
+      },
+      "battery_charge_today": {
+        "name": "Battery charge energy today"
+      },
+      "battery_discharge_total": {
+        "name": "Battery discharge energy"
+      },
+      "battery_discharge_today": {
+        "name": "Battery discharge energy today"
+      },
+      "feed_in_total": {
+        "name": "Feed-in energy"
+      },
+      "feed_in_today": {
+        "name": "Feed-in energy today"
+      },
+      "grid_import_total": {
+        "name": "Grid import energy"
+      },
+      "grid_import_today": {
+        "name": "Grid import energy today"
+      },
+      "load_energy_total": {
+        "name": "Load energy"
+      },
+      "load_energy_today": {
+        "name": "Load energy today"
+      },
+      "yield_total": {
+        "name": "Yield"
+      },
+      "yield_today": {
+        "name": "Yield today"
+      },
+      "input_energy_total": {
+        "name": "Input energy"
+      },
+      "input_energy_today": {
+        "name": "Input energy today"
+      }
+    },
+    "binary_sensor": {
+      "fault": {
+        "name": "Fault"
+      }
+    },
+    "number": {
+      "max_charge_current": {
+        "name": "Max charge current"
+      },
+      "max_discharge_current": {
+        "name": "Max discharge current"
+      },
+      "min_soc": {
+        "name": "Min state of charge off grid"
+      },
+      "max_soc": {
+        "name": "Max state of charge"
+      },
+      "min_soc_on_grid": {
+        "name": "Min state of charge on grid"
+      }
+    },
+    "select": {
+      "work_mode": {
+        "name": "Work mode",
+        "state": {
+          "self_use": "Self use",
+          "feed_in_first": "Feed-in first",
+          "back_up": "Back-up",
+          "peak_shaving": "Peak shaving"
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "modbus_error": {
+      "message": "Modbus communication failed: {error}"
+    },
+    "no_component_answered": {
+      "message": "The inverter answered none of the reads."
+    },
+    "unsupported_model": {
+      "message": "Model {model} is not supported."
+    },
+    "invalid_value": {
+      "message": "Value {value} is not allowed: {error}"
+    },
+    "write_failed": {
+      "message": "The inverter refused the write: {error}"
+    }
+  }
+}
