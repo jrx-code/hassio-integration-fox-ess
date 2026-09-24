@@ -51,7 +51,50 @@ its own connection either. So the fix belongs in the client library.
 
 ## Status
 
-Not submitted. modbus-connection's AI policy (Open Home Foundation) forbids
-autonomous PRs: a human reviews, understands and submits. Suggested order:
-open an issue on wlcrs/tmodbus with the captured frames, then the PR; then the
-modbus-connection issue for step 2.
+- 2026-09-24: branch `fix/repair-missing-unit-id` on the fork `jrx-code/tmodbus`,
+  commit `eb01157`, rebased on upstream `main` (`41bd1ae`). Upstream suite 1496
+  passed, ruff / ruff format / mypy clean. Not submitted.
+- tmodbus `AI_POLICY.md` forbids issues and PRs created by autonomous agents.
+  The user opens both, reviews the diff and answers maintainers personally.
+- CONTRIBUTING asks to discuss first: issue, then PR.
+
+### 1. Issue (https://github.com/wlcrs/tmodbus/issues/new) - draft, rewrite in own words
+
+**TCP response without unit id from serial devices behind a gateway**
+
+My FoxESS H3 inverter (after a firmware update to Master 2.23 / Manager 1.95)
+drops the RTU slave address from most replies. The RS485-to-TCP gateway forwards
+the reply as is, so the function code ends up in the unit id position:
+
+```
+request  0001 0000 0006 f7 03 7540 0003
+reply    0001 0000 0008 03 06 00df 0067 0195   (unit id missing)
+expected 0001 0000 0009 f7 03 06 00df 0067 0195
+```
+
+The data is correct, but tmodbus raises "Unit ID mismatch". Would you accept an
+opt-in flag on `AsyncTcpTransport` that puts the unit id back when the received
+"unit id" equals the request's function code? I have a branch with tests.
+
+### 2. PR (after the maintainer answers) - draft, follows their template
+
+https://github.com/wlcrs/tmodbus/compare/main...jrx-code:tmodbus:fix/repair-missing-unit-id?expand=1
+
+**Proposed Changes**
+
+Adds `repair_missing_unit_id` (default `False`) to `AsyncTcpTransport` /
+`ModbusTcpProtocol`. When set, a response whose unit id differs from the request
+but equals the request's function code (or `fc | 0x80`) is treated as a frame
+that lost its unit id: the byte is prepended to the PDU. A correct frame never
+matches; a response from another unit still raises. Tests use frames captured
+from the inverter.
+
+**Related Issues**
+
+#<issue number>
+
+### 3. Afterwards
+
+Same route for modbus-connection (`unit.require_unit_id_repair()` passing the
+flag to the tmodbus transport), then `foxess-modbus` calls it in
+`FoxEssH3Inverter.__init__`. modbus-connection has the same AI policy.
